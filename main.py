@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request
 from jinja2 import Template
+from jinja2 import Environment, FileSystemLoader
 import os
 import smtplib
 from email.mime.multipart import MIMEMultipart
@@ -8,17 +9,27 @@ from email.mime.application import MIMEApplication
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 
+import pdfkit
+
+
 app = Flask(__name__)
 
-def create_pdf(data, filename):
-    c = canvas.Canvas(filename, pagesize=letter)
-    # Insert data into PDF
-    c.drawString(100, 750, "Email: " + data['email'])
-    c.drawString(100, 730, "Name: " + data['name'])
-    c.drawString(100, 710, "Start Date: " + data['start_date'])
-    c.drawString(100, 690, "End Date: " + data['end_date'])
-    c.save()
+wkhtml_path = pdfkit.configuration(wkhtmltopdf = "C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe")  #by using configuration you can add path value.
 
+
+def create_pdf(data, filename):
+    # Load the Jinja2 environment
+    env = Environment(loader=FileSystemLoader('.'))
+    
+    # Render the HTML template with the provided data
+    template = env.get_template('templates/newpdf.html')
+    html_content = template.render(email=data['email'], name=data['name'], 
+                           start_date=data['start_date'], end_date=data['end_date'])
+    print (html_content)
+    # Convert HTML to PDF
+    pdfkit.from_string(html_content, filename, configuration=wkhtml_path)
+    
+    
 def send_email_attachment(To, subject, message, data):
     msg = MIMEMultipart()
     sender = 'iammaitreyee1@gmail.com'
@@ -36,8 +47,8 @@ def send_email_attachment(To, subject, message, data):
         msg.attach(attachment)
     smtp_server = 'smtp.gmail.com'
     smtp_port = 587
-    smtp_username = 'Enter the email'
-    smtp_password = 'Enter your pasword'
+    smtp_username = 'enter you email'
+    smtp_password = 'enter app-password'
 
     with smtplib.SMTP(smtp_server, smtp_port) as server:
         server.starttls()
@@ -60,6 +71,8 @@ def index():
         send_email_attachment(email, 'Your PDF Attachment', 'Please find attached PDF', data)
         return 'Email sent successfully!'
     return render_template('index.html')
-
+@app.route('/pdf',methods=['GET'])
+def pdfmaker():
+    return render_template('newpdf.html',email='abc@gmail.com',name='abc',start_date='2024-02-06', end_date='2024-05-06')
 if __name__ == '__main__':
     app.run(debug=True)
