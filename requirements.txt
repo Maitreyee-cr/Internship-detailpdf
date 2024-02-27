@@ -1,4 +1,4 @@
-
+pdfkit==1.0.0
 Flask-Cors==4.0.0
 checksum==1.0.4
 checksumdir==1.2.0
