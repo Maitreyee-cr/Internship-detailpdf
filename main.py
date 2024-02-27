@@ -47,8 +47,8 @@ def send_email_attachment(To, subject, message, data):
         msg.attach(attachment)
     smtp_server = 'smtp.gmail.com'
     smtp_port = 587
-    smtp_username = 'enter you email'
-    smtp_password = 'enter app-password'
+    smtp_username = 'iammaitreyee1@gmail.com'
+    smtp_password = 'oyxdqxguccbiubuz'
 
     with smtplib.SMTP(smtp_server, smtp_port) as server:
         server.starttls()
